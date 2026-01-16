@@ -1,10 +1,12 @@
 use std::error::Error;
-
 use axum::routing::post;
-use axum::{Router, response::IntoResponse, serve::Serve};
-use axum::http::StatusCode;
+use axum::{Router, serve::Serve};
 use tokio::net::TcpListener;
 use tower_http::services::ServeDir;
+
+use crate::routes::{login, logout, signup, verify_2fa};
+
+pub mod routes;
 
 // This struct encapsulates our application-related logic.
 pub struct Application {
@@ -26,7 +28,7 @@ impl Application {
             .route("/login", post(login))
             .route("/verify-2fa", post(verify_2fa))
             .route("/logout", post(logout))
-            .route("/verify-token", post(verify_token));
+            .route("/verify-token", post(verify_2fa));
 
         let listener = tokio::net::TcpListener::bind(address).await?;
         let address = listener.local_addr()?.to_string();
@@ -40,26 +42,6 @@ impl Application {
         println!("listening on {}", &self.address);
         self.server.await
     }
-}
-
-async fn signup() -> impl IntoResponse {
-    StatusCode::OK.into_response()
-}
-
-async fn login() -> impl IntoResponse {
-    StatusCode::OK.into_response()
-}
-
-async fn verify_2fa() -> impl IntoResponse {
-    StatusCode::OK.into_response()
-}
-
-async fn logout() -> impl IntoResponse {
-    StatusCode::OK.into_response()
-}
-
-async fn verify_token() -> impl IntoResponse {
-    StatusCode::OK.into_response()
 }
 
 
