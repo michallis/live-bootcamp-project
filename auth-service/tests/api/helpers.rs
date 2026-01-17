@@ -1,6 +1,6 @@
 use auth_service::Application;
-use axum::{http::request};
 use reqwest::Response;
+use uuid::Uuid;
 
 pub struct TestApp {
     pub address: String,
@@ -34,10 +34,12 @@ impl TestApp {
             .expect("Failed to execute request.")
     }
 
-    pub async fn post_signup(&self, body: SignupRequest) -> Response {
+    pub async fn post_signup<Body>(&self, body: &Body) -> Response 
+    where 
+        Body: serde::Serialize{
         self.http_client
             .post(&format!("{}/signup", &self.address))
-            .json(&body)
+            .json(body)
             .send()
             .await
             .expect("Failed to execute request.")
@@ -81,6 +83,9 @@ impl TestApp {
         // TODO: Implement helper functions for all other routes (signup, login, logout, verify-2fa, and verify-token)
 }
 
+pub fn get_random_email() -> String {
+    format!("{}@example.com", Uuid::new_v4())
+}
 
 #[derive(serde::Serialize)]
 pub struct SignupRequest {
