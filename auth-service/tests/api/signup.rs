@@ -1,3 +1,4 @@
+use auth_service::routes::SignupResponse;
 use crate::helpers::{TestApp, get_random_email};
 
 #[tokio::test]
@@ -40,5 +41,24 @@ async fn should_return_422_if_malformed_input() {
 
 #[tokio::test]
 async fn should_return_201_if_valid_input() {
-    todo!()
+    let app = TestApp::new().await;
+    let email = "test@gmail.com";
+    let password = "1234";
+    let req = serde_json::json!({
+        "email": email,
+        "password": password,
+        "requires2FA": true
+        });
+    let expected_response = SignupResponse {
+        message: "User created successfully!".to_owned(),
+    };
+    let response = app.post_signup(&req).await;
+    assert_eq!(response.status().as_u16(), 201, "Failed for input: {:?}", req);
+    assert_eq!(
+        response
+            .json::<SignupResponse>()
+            .await
+            .expect("Could not deserialize response body to UserBody"),
+        expected_response
+    );
 }
