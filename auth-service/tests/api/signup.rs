@@ -24,7 +24,7 @@ async fn should_return_422_if_malformed_input() {
             "email": true,
             "password": "12345",
         }),
-        
+
     ];
 
     for test_case in test_cases.iter() {
@@ -36,4 +36,9 @@ async fn should_return_422_if_malformed_input() {
             test_case
         );
     }
+}
+
+#[tokio::test]
+async fn should_return_201_if_valid_input() {
+    todo!()
 }

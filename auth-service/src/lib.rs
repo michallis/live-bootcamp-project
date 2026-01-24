@@ -7,6 +7,8 @@ use tower_http::services::ServeDir;
 use crate::routes::{login, logout, signup, verify_2fa};
 
 pub mod routes;
+mod domain;
+mod services;
 
 // This struct encapsulates our application-related logic.
 pub struct Application {
