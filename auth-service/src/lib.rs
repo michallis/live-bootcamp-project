@@ -1,6 +1,6 @@
 use std::error::Error;
 use axum::routing::post;
-use axum::{Router, serve::Serve, ServiceExt};
+use axum::{Router, serve::Serve};
 use tokio::net::TcpListener;
 use tower_http::services::ServeDir;
 
@@ -25,9 +25,8 @@ pub struct Application {
 
 impl Application {
     pub async fn build(app_state: AppState, address: &str) -> Result<Self, Box<dyn Error>> {
-        let serve_dir_assets = ServeDir::new("assets");
         let router = Router::new()
-            //.nest_service("/", serve_dir_assets.clone())
+            .fallback_service(ServeDir::new("assets"))
             .route("/signup", post(signup))
             .route("/login", post(login))
             .route("/verify-2fa", post(verify_2fa))
