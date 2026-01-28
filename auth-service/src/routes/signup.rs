@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use axum::extract::State;
 use axum::Json;
 use axum::response::IntoResponse;
@@ -7,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{app_state::AppState, domain::User};
 use crate::domain::AuthAPIError;
-use crate::services::hashmap_user_store::UserStoreError;
+use crate::domain::datastores::UserStore;
 
 pub async fn signup(State(state): State<AppState>, Json(request): Json<SignupRequest>) -> Result<impl IntoResponse, AuthAPIError> {
 
@@ -18,13 +17,13 @@ pub async fn signup(State(state): State<AppState>, Json(request): Json<SignupReq
     if email.is_empty() || password.chars().count() < 8 { return Err(AuthAPIError::InvalidCredentials) }
     let mut user_store = state.user_store.write().await;
 
-    match user_store.get_user(&email) {
+    match user_store.get_user(&email).await {
         Ok(_) => return Err(AuthAPIError::UserAlreadyExists),
         Err(_) => { },
     }
 
     let user = User::new(email.clone(), password, request.requires_2fa);
-    match user_store.add_user(user) {
+    match user_store.add_user(user).await {
         Ok(_) => {
             let response = Json(SignupResponse {
                 message: "User created successfully!".to_string(),
